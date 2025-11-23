@@ -1,0 +1,150 @@
+.story {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.story-container {
+  max-width: 400px;
+  width: 100%;
+  background-color: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.story-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+  z-index: 10;
+}
+
+.story-close-btn {
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(0,0,0,0.5);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.story-close-btn:hover {
+  background-color: rgba(0,0,0,0.7);
+}
+
+.story-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  object-fit: cover;
+}
+
+.story-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.story-username {
+  color: #fff;
+  font-weight: 600;
+}
+
+.story-time {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.story-content {
+  aspect-ratio: 9/16;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-content img,
+.story-content video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.story-text {
+  position: absolute;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+}
+
+.story-navigation {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+}
+
+.story-navigation button {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.story-navigation button:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.story-navigation button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.story-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #8e8e8e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.story-create-btn {
+  padding: 12px 24px;
+  background-color: #0095f6;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.story-create-btn:hover {
+  background-color: #1877f2;
+}
+

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNS API 문서</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>SNS API 문서</h1>
+        <p>현재 구현된 모든 REST API 엔드포인트를 한눈에 확인하세요.</p>
+        <a class="back-link" th:href="@{/}">홈으로 이동</a>
+    </header>
+
+    <main class="api-docs">
+        <div th:each="group : ${apiGroups}" class="api-group">
+            <h2 th:text="${group.title}"></h2>
+            <div class="api-table-wrapper">
+                <table class="api-table">
+                    <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Path</th>
+                        <th>설명</th>
+                        <th>요청 본문 / 파라미터</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="endpoint : ${group.endpoints}">
+                        <td>
+                            <span th:text="${endpoint.method}" class="method-badge"
+                                  th:classappend="' method-' + ${endpoint.method.toLowerCase()}"></span>
+                        </td>
+                        <td><code th:text="${endpoint.path}"></code></td>
+                        <td th:text="${endpoint.description}"></td>
+                        <td th:text="${endpoint.payload}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>
+
+

@@ -1,0 +1,48 @@
+.home {
+  padding: 20px 0;
+}
+
+.feed {
+  max-width: 614px;
+  margin: 0 auto;
+}
+
+.loading, .empty-feed {
+  text-align: center;
+  padding: 60px 20px;
+  color: #8e8e8e;
+}
+
+.empty-feed p {
+  margin-bottom: 8px;
+}
+
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.feed-header h2 {
+  margin: 0;
+  color: #262626;
+  font-size: 20px;
+}
+
+.refresh-btn {
+  padding: 6px 16px;
+  background-color: #efefef;
+  color: #262626;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+  background-color: #dbdbdb;
+}
+
