@@ -72,18 +72,30 @@ public class NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new SnsException(ErrorCode.INVALID_REQUEST, "알림을 찾을 수 없습니다."));
         notification.setIsRead(true);
+        notification.setReadAt(java.time.LocalDateTime.now());
     }
 
     private NotificationResponse toResponse(Notification notification) {
+        String postImageUrl = null;
+        if (notification.getPost() != null && 
+            notification.getPost().getImageUrls() != null && 
+            !notification.getPost().getImageUrls().isEmpty()) {
+            postImageUrl = notification.getPost().getImageUrls().get(0);
+        }
+        
         return NotificationResponse.builder()
                 .id(notification.getId())
                 .userId(notification.getUser().getId())
                 .actorId(notification.getActor() != null ? notification.getActor().getId() : null)
+                .actorUsername(notification.getActor() != null ? notification.getActor().getUsername() : null)
+                .actorProfileImageUrl(notification.getActor() != null ? notification.getActor().getProfileImageUrl() : null)
                 .type(notification.getType())
                 .postId(notification.getPost() != null ? notification.getPost().getId() : null)
+                .postImageUrl(postImageUrl)
                 .commentId(notification.getComment() != null ? notification.getComment().getId() : null)
                 .followId(notification.getFollow() != null ? notification.getFollow().getId() : null)
-                .read(Boolean.TRUE.equals(notification.getIsRead()))
+                .isRead(Boolean.TRUE.equals(notification.getIsRead()))
+                .createdAt(notification.getCreatedAt())
                 .build();
     }
 }

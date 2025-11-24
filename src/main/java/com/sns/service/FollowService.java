@@ -5,6 +5,7 @@ import com.sns.common.SnsException;
 import com.sns.dto.follow.FollowDto.FollowResponse;
 import com.sns.dto.follow.FollowDto.UserFollowResponse;
 import com.sns.entity.Follow;
+import com.sns.entity.Notification.NotificationType;
 import com.sns.entity.User;
 import com.sns.repository.FollowRepository;
 import com.sns.repository.UserRepository;
@@ -21,6 +22,7 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public FollowResponse follow(Long followerId, Long followingId) {
@@ -41,7 +43,19 @@ public class FollowService {
                 .following(following)
                 .build();
 
-        return toResponse(followRepository.save(follow));
+        Follow savedFollow = followRepository.save(follow);
+        
+        // 팔로우 당한 사용자에게 알림 생성
+        notificationService.createNotification(
+                following.getId(),  // 알림을 받을 사용자 (팔로우 당한 사람)
+                follower.getId(),   // 알림을 발생시킨 사용자 (팔로우 한 사람)
+                NotificationType.FOLLOW,
+                null,               // 게시물 ID
+                null,               // 댓글 ID
+                savedFollow.getId() // 팔로우 ID
+        );
+        
+        return toResponse(savedFollow);
     }
 
     @Transactional

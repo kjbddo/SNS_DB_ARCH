@@ -8,7 +8,7 @@ function Landing() {
       <div className="landing-container">
         <div className="landing-content">
           <div className="landing-left">
-            <img src="/images/routined-logo.png" alt="Routined" className="landing-logo-img" />
+            <img src="/images/Routine_no_background.png" alt="Routined" className="landing-logo-img" />
             <p className="landing-subtitle">
               친구들과 사진과 동영상을 공유하고<br />
               새로운 사람들을 만나보세요.

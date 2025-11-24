@@ -6,6 +6,7 @@ import com.sns.dto.comment.CommentDto.CommentResponse;
 import com.sns.dto.comment.CommentDto.CreateRequest;
 import com.sns.dto.comment.CommentDto.UpdateRequest;
 import com.sns.entity.Comment;
+import com.sns.entity.Notification.NotificationType;
 import com.sns.entity.Post;
 import com.sns.entity.User;
 import com.sns.repository.CommentRepository;
@@ -25,6 +26,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public CommentResponse create(CreateRequest request) {
@@ -45,7 +47,33 @@ public class CommentService {
                 .content(request.getContent())
                 .build();
 
-        return toResponse(commentRepository.save(comment));
+        Comment savedComment = commentRepository.save(comment);
+        
+        // 자신의 게시물이 아닌 경우에만 알림 생성
+        if (!post.getUser().getId().equals(user.getId())) {
+            notificationService.createNotification(
+                    post.getUser().getId(),  // 알림을 받을 사용자 (게시물 작성자)
+                    user.getId(),            // 알림을 발생시킨 사용자 (댓글 작성자)
+                    NotificationType.COMMENT,
+                    post.getId(),            // 게시물 ID
+                    savedComment.getId(),    // 댓글 ID
+                    null                     // 팔로우 ID
+            );
+        }
+        
+        // 대댓글인 경우, 부모 댓글 작성자에게도 알림 생성 (자신이 아닌 경우)
+        if (parent != null && !parent.getUser().getId().equals(user.getId())) {
+            notificationService.createNotification(
+                    parent.getUser().getId(),  // 알림을 받을 사용자 (부모 댓글 작성자)
+                    user.getId(),              // 알림을 발생시킨 사용자 (대댓글 작성자)
+                    NotificationType.COMMENT,
+                    post.getId(),              // 게시물 ID
+                    savedComment.getId(),      // 댓글 ID
+                    null                       // 팔로우 ID
+            );
+        }
+        
+        return toResponse(savedComment);
     }
 
     @Transactional

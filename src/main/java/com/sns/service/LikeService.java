@@ -6,6 +6,7 @@ import com.sns.dto.like.LikeDto.LikeRequest;
 import com.sns.dto.like.LikeDto.LikeResponse;
 import com.sns.entity.Comment;
 import com.sns.entity.Like;
+import com.sns.entity.Notification.NotificationType;
 import com.sns.entity.Post;
 import com.sns.entity.User;
 import com.sns.repository.CommentRepository;
@@ -24,6 +25,7 @@ public class LikeService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public LikeResponse like(LikeRequest request) {
@@ -40,7 +42,21 @@ public class LikeService {
                     .user(user)
                     .post(post)
                     .build();
-            return toResponse(likeRepository.save(like));
+            Like savedLike = likeRepository.save(like);
+            
+            // 자신의 게시물이 아닌 경우에만 알림 생성
+            if (!post.getUser().getId().equals(user.getId())) {
+                notificationService.createNotification(
+                        post.getUser().getId(),  // 알림을 받을 사용자 (게시물 작성자)
+                        user.getId(),            // 알림을 발생시킨 사용자 (좋아요 누른 사람)
+                        NotificationType.LIKE,
+                        post.getId(),            // 게시물 ID
+                        null,                    // 댓글 ID
+                        null                     // 팔로우 ID
+                );
+            }
+            
+            return toResponse(savedLike);
         } else if (request.getCommentId() != null) {
             Comment comment = commentRepository.findById(request.getCommentId())
                     .orElseThrow(() -> new SnsException(ErrorCode.COMMENT_NOT_FOUND));
@@ -51,7 +67,21 @@ public class LikeService {
                     .user(user)
                     .comment(comment)
                     .build();
-            return toResponse(likeRepository.save(like));
+            Like savedLike = likeRepository.save(like);
+            
+            // 자신의 댓글이 아닌 경우에만 알림 생성
+            if (!comment.getUser().getId().equals(user.getId())) {
+                notificationService.createNotification(
+                        comment.getUser().getId(),  // 알림을 받을 사용자 (댓글 작성자)
+                        user.getId(),               // 알림을 발생시킨 사용자 (좋아요 누른 사람)
+                        NotificationType.LIKE,
+                        comment.getPost().getId(),  // 게시물 ID
+                        comment.getId(),            // 댓글 ID
+                        null                        // 팔로우 ID
+                );
+            }
+            
+            return toResponse(savedLike);
         }
         throw new SnsException(ErrorCode.INVALID_REQUEST, "postId 또는 commentId가 필요합니다.");
     }

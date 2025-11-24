@@ -16,7 +16,10 @@ function Notifications() {
   const fetchNotifications = async () => {
     try {
       const response = await notificationAPI.getNotifications(currentUserId)
-      if (response.data) {
+      // API 인터셉터가 response.data를 반환하므로, response가 이미 ApiResponse의 data 필드
+      if (response && Array.isArray(response)) {
+        setNotifications(response)
+      } else if (response && response.data && Array.isArray(response.data)) {
         setNotifications(response.data)
       }
     } catch (error) {
@@ -115,7 +118,9 @@ function Notifications() {
                 <div className="notification-content">
                   <p>{getNotificationText(notification)}</p>
                   <span className="notification-time">
-                    {new Date(notification.createdAt).toLocaleString('ko-KR')}
+                    {notification.createdAt 
+                      ? new Date(notification.createdAt).toLocaleString('ko-KR')
+                      : ''}
                   </span>
                 </div>
                 {notification.postImageUrl && (
