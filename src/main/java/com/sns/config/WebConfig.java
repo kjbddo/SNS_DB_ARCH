@@ -18,6 +18,10 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("classpath:/static/js/");
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("classpath:/static/images/");
+        
+        // 미디어 파일 서빙 (업로드된 파일)
+        registry.addResourceHandler("/media/**")
+                .addResourceLocations("file:uploads/");
     }
 
     // CORS 설정은 CorsConfig에서 관리합니다.

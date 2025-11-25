@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { userAPI } from '../services/api'
+import { useNavigate, Link } from 'react-router-dom'
+import { userAPI, fileAPI } from '../services/api'
 import './Settings.css'
 
 function Settings() {
@@ -15,6 +15,7 @@ function Settings() {
     isPrivate: false
   })
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     fetchProfile()
@@ -23,14 +24,16 @@ function Settings() {
   const fetchProfile = async () => {
     try {
       const response = await userAPI.getProfile(currentUserId)
-      if (response.data) {
+      // API 인터셉터가 response.data를 반환하므로, response가 이미 ApiResponse의 data 필드
+      const userData = response && response.data ? response.data : response
+      if (userData) {
         setFormData({
-          username: response.data.username || '',
-          email: response.data.email || '',
-          name: response.data.name || '',
-          bio: response.data.bio || '',
-          profileImageUrl: response.data.profileImageUrl || '',
-          isPrivate: response.data.isPrivate || false
+          username: userData.username || '',
+          email: userData.email || '',
+          name: userData.name || '',
+          bio: userData.bio || '',
+          profileImageUrl: userData.profileImageUrl || '',
+          isPrivate: userData.isPrivate || false
         })
       }
     } catch (error) {
@@ -48,10 +51,44 @@ function Settings() {
     })
   }
 
+  const handleImageFileChange = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // 이미지 파일 검증
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.')
+      return
+    }
+
+    setUploading(true)
+    try {
+      const response = await fileAPI.uploadProfileImage(file)
+      const imageUrl = response && response.data ? response.data.url : response.url
+      setFormData({
+        ...formData,
+        profileImageUrl: imageUrl
+      })
+      alert('프로필 이미지가 업로드되었습니다.')
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error)
+      alert('이미지 업로드에 실패했습니다.')
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await userAPI.updateProfile(currentUserId, formData)
+      // username과 email은 백엔드에서 수정 불가하므로 제외
+      const updateData = {
+        name: formData.name,
+        bio: formData.bio,
+        profileImageUrl: formData.profileImageUrl,
+        isPrivate: formData.isPrivate
+      }
+      await userAPI.updateProfile(currentUserId, updateData)
       alert('프로필이 업데이트되었습니다.')
       navigate(`/profile/${currentUserId}`)
     } catch (error) {
@@ -76,12 +113,16 @@ function Settings() {
                 src={formData.profileImageUrl || '/default-avatar.png'}
                 alt="Profile"
               />
+              <label htmlFor="profileImageFile" className="settings-file-upload-btn">
+                {uploading ? '업로드 중...' : '파일 선택'}
+              </label>
               <input
-                type="text"
-                name="profileImageUrl"
-                placeholder="이미지 URL"
-                value={formData.profileImageUrl}
-                onChange={handleChange}
+                type="file"
+                id="profileImageFile"
+                accept="image/*"
+                onChange={handleImageFileChange}
+                style={{ display: 'none' }}
+                disabled={uploading}
               />
             </div>
           </div>
@@ -92,9 +133,10 @@ function Settings() {
               type="text"
               name="username"
               value={formData.username}
-              onChange={handleChange}
-              required
+              disabled
+              className="settings-disabled"
             />
+            <small className="settings-hint">사용자명은 변경할 수 없습니다.</small>
           </div>
 
           <div className="settings-section">
@@ -113,9 +155,10 @@ function Settings() {
               type="email"
               name="email"
               value={formData.email}
-              onChange={handleChange}
-              required
+              disabled
+              className="settings-disabled"
             />
+            <small className="settings-hint">이메일은 변경할 수 없습니다.</small>
           </div>
 
           <div className="settings-section">

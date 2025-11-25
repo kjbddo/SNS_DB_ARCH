@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { storyAPI } from '../services/api'
+import { storyAPI, fileAPI } from '../services/api'
+import { FaTimes } from 'react-icons/fa'
 import './CreateStory.css'
 
 function CreateStory() {
@@ -12,6 +13,10 @@ function CreateStory() {
     text: ''
   })
   const [imagePreview, setImagePreview] = useState('')
+  const [videoPreview, setVideoPreview] = useState('')
+  const [selectedImageFile, setSelectedImageFile] = useState(null)
+  const [selectedVideoFile, setSelectedVideoFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -24,40 +29,90 @@ function CreateStory() {
     }
   }
 
-  const handleFileChange = (e) => {
+  const handleImageFileChange = (e) => {
     const file = e.target.files[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result)
-        setFormData({
-          ...formData,
-          imageUrl: reader.result // 실제로는 서버에 업로드 후 URL 받아야 함
-        })
-      }
-      reader.readAsDataURL(file)
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      alert('이미지 파일만 업로드 가능합니다.')
+      return
     }
+
+    setSelectedImageFile(file)
+    setSelectedVideoFile(null)
+    setVideoPreview('')
+    formData.videoUrl = ''
+    
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImagePreview(reader.result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleVideoFileChange = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    if (!file.type.startsWith('video/')) {
+      alert('동영상 파일만 업로드 가능합니다.')
+      return
+    }
+
+    setSelectedVideoFile(file)
+    setSelectedImageFile(null)
+    setImagePreview('')
+    formData.imageUrl = ''
+    
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setVideoPreview(reader.result)
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.imageUrl && !formData.videoUrl && !formData.text) {
+    
+    if (!selectedImageFile && !selectedVideoFile && !formData.text) {
       alert('이미지, 동영상 또는 텍스트 중 하나는 입력해야 합니다.')
       return
     }
 
+    setUploading(true)
     try {
+      let imageUrl = formData.imageUrl
+      let videoUrl = formData.videoUrl
+
+      // 이미지 파일 업로드
+      if (selectedImageFile) {
+        const response = await fileAPI.uploadStoryImage(selectedImageFile)
+        imageUrl = response && response.data ? response.data.url : response.url
+      }
+
+      // 동영상 파일 업로드
+      if (selectedVideoFile) {
+        const response = await fileAPI.uploadStoryVideo(selectedVideoFile)
+        videoUrl = response && response.data ? response.data.url : response.url
+      }
+
       const submitData = {
         userId: currentUserId,
-        ...formData
+        imageUrl: imageUrl,
+        videoUrl: videoUrl,
+        text: formData.text
       }
+      
       const response = await storyAPI.create(submitData)
-      if (response.data) {
+      const storyData = response && response.data ? response.data : response
+      if (storyData) {
         navigate('/app/story')
       }
     } catch (error) {
       console.error('스토리 생성 실패:', error)
       alert('스토리 생성에 실패했습니다.')
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -70,38 +125,62 @@ function CreateStory() {
             {imagePreview ? (
               <div className="image-preview">
                 <img src={imagePreview} alt="Preview" />
+                <button
+                  type="button"
+                  className="media-remove-btn"
+                  onClick={() => {
+                    setImagePreview('')
+                    setSelectedImageFile(null)
+                    setFormData({ ...formData, imageUrl: '' })
+                  }}
+                >
+                  <FaTimes />
+                </button>
+              </div>
+            ) : videoPreview ? (
+              <div className="video-preview">
+                <video src={videoPreview} controls />
+                <button
+                  type="button"
+                  className="media-remove-btn"
+                  onClick={() => {
+                    setVideoPreview('')
+                    setSelectedVideoFile(null)
+                    setFormData({ ...formData, videoUrl: '' })
+                  }}
+                >
+                  <FaTimes />
+                </button>
               </div>
             ) : (
-              <label htmlFor="imageFile" className="image-upload-label">
-                <div className="image-upload-placeholder">
-                  <span>사진 선택</span>
-                </div>
-              </label>
+              <div className="file-upload-buttons">
+                <label htmlFor="imageFile" className="file-upload-label">
+                  이미지 선택
+                </label>
+                <input
+                  type="file"
+                  id="imageFile"
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                  style={{ display: 'none' }}
+                  disabled={uploading}
+                />
+                <label htmlFor="videoFile" className="file-upload-label">
+                  동영상 선택
+                </label>
+                <input
+                  type="file"
+                  id="videoFile"
+                  accept="video/*"
+                  onChange={handleVideoFileChange}
+                  style={{ display: 'none' }}
+                  disabled={uploading}
+                />
+              </div>
             )}
-            <input
-              type="file"
-              id="imageFile"
-              accept="image/*,video/*"
-              onChange={handleFileChange}
-              style={{ display: 'none' }}
-            />
           </div>
 
           <div className="create-story-form-section">
-            <input
-              type="text"
-              name="imageUrl"
-              placeholder="이미지 URL (또는 파일 선택)"
-              value={formData.imageUrl}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              name="videoUrl"
-              placeholder="동영상 URL"
-              value={formData.videoUrl}
-              onChange={handleChange}
-            />
             <textarea
               name="text"
               placeholder="텍스트 입력..."
@@ -109,8 +188,8 @@ function CreateStory() {
               onChange={handleChange}
               rows="4"
             />
-            <button type="submit" className="create-story-submit">
-              스토리 공유
+            <button type="submit" className="create-story-submit" disabled={uploading}>
+              {uploading ? '업로드 중...' : '스토리 공유'}
             </button>
           </div>
         </form>

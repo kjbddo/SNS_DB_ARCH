@@ -36,8 +36,10 @@ function Profile() {
   const fetchProfile = async () => {
     try {
       const response = await userAPI.getProfile(userId)
-      if (response.data) {
-        setUser(response.data)
+      // API 인터셉터가 response.data를 반환하므로, response가 이미 ApiResponse의 data 필드
+      const userData = response && response.data ? response.data : response
+      if (userData) {
+        setUser(userData)
       }
     } catch (error) {
       console.error('프로필 로딩 실패:', error)

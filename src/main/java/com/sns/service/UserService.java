@@ -55,7 +55,8 @@ public class UserService {
         if (request.getProfileImageUrl() != null) user.setProfileImageUrl(request.getProfileImageUrl());
         if (request.getIsPrivate() != null) user.setIsPrivate(request.getIsPrivate());
 
-        return toResponse(user);
+        // 변경사항을 데이터베이스에 저장
+        return toResponse(userRepository.save(user));
     }
 
     @Transactional(readOnly = true)

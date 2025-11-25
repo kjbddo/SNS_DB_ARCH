@@ -149,5 +149,76 @@ export const collectionAPI = {
   },
 }
 
+// File Upload API
+export const fileAPI = {
+  uploadProfileImage: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/files/upload/profile', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+  uploadPostImage: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/files/upload/post/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+  uploadPostImages: (files) => {
+    const formData = new FormData()
+    files.forEach(file => {
+      formData.append('files', file)
+    })
+    return api.post('/files/upload/post/images', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+  uploadPostVideo: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/files/upload/post/video', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+  uploadPostVideos: (files) => {
+    const formData = new FormData()
+    files.forEach(file => {
+      formData.append('files', file)
+    })
+    return api.post('/files/upload/post/videos', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+  uploadStoryImage: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/files/upload/story/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+  uploadStoryVideo: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return api.post('/files/upload/story/video', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  },
+}
+
 export default api
 

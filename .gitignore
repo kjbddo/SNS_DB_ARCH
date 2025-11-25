@@ -35,3 +35,6 @@ out/
 
 ### Mac ###
 .DS_Store
+
+### Uploads ###
+uploads/
