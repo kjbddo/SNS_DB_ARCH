@@ -57,7 +57,7 @@ public class FileStorageService {
             // URL 생성
             return baseUrl + "/media/" + subDirectory + "/" + fileName;
         } catch (IOException e) {
-            throw new SnsException(ErrorCode.INTERNAL_SERVER_ERROR, "파일 저장에 실패했습니다: " + e.getMessage());
+            throw new SnsException(ErrorCode.INTERNAL_ERROR, "파일 저장에 실패했습니다: " + e.getMessage());
         }
     }
 
