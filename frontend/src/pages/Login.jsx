@@ -45,7 +45,7 @@ function Login() {
       }
     } catch (error) {
       console.error('로그인 실패:', error)
-      setError(error.response?.data?.message || '로그인에 실패했습니다. 사용자명과 비밀번호를 확인해주세요.')
+      setError(error.response?.data?.message || '로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.')
     } finally {
       setLoading(false)
     }
@@ -61,7 +61,7 @@ function Login() {
           <input
             type="text"
             name="username"
-            placeholder="사용자명"
+            placeholder="아이디"
             value={formData.username}
             onChange={handleChange}
             required

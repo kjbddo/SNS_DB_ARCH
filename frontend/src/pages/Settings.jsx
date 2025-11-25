@@ -128,7 +128,7 @@ function Settings() {
           </div>
 
           <div className="settings-section">
-            <label>사용자명</label>
+            <label>아이디</label>
             <input
               type="text"
               name="username"
@@ -136,7 +136,7 @@ function Settings() {
               disabled
               className="settings-disabled"
             />
-            <small className="settings-hint">사용자명은 변경할 수 없습니다.</small>
+            <small className="settings-hint">아이디는 변경할 수 없습니다.</small>
           </div>
 
           <div className="settings-section">

@@ -67,7 +67,7 @@ function Register() {
           <input
             type="text"
             name="username"
-            placeholder="사용자명"
+            placeholder="아이디"
             value={formData.username}
             onChange={handleChange}
             required
